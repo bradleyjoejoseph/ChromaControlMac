@@ -1,25 +1,28 @@
 import SwiftUI
 
 public enum MainTab: String, CaseIterable, Identifiable {
-    case lighting = "Lighting"
+    case syncAll = "Sync All"
+    case mouse = "Mouse"
+    case keyboard = "Keyboard"
     case performance = "Performance"
-    case profiles = "Profiles"
-    case about = "About"
+    case about = "About & Help"
 
     public var id: String { rawValue }
 
     public var icon: String {
         switch self {
-        case .lighting: return "sparkles"
+        case .syncAll: return "sparkles.rectangle.stack.fill"
+        case .mouse: return "computermouse.fill"
+        case .keyboard: return "keyboard.fill"
         case .performance: return "gauge.medium"
-        case .profiles: return "folder.fill"
         case .about: return "info.circle"
         }
     }
 }
 
 public struct ContentView: View {
-    @ObservedObject var hardware = RazerHardwareManager.shared
+    @ObservedObject var mouse = RazerHardwareManager.shared
+    @ObservedObject var keyboard = AttackSharkManager.shared
     @ObservedObject var ui = UIStateManager.shared
 
     public var body: some View {
@@ -27,7 +30,7 @@ public struct ContentView: View {
             // Header Bar
             HStack(spacing: 16) {
                 HStack(spacing: 8) {
-                    Image(systemName: "computermouse.fill")
+                    Image(systemName: "circle.grid.cross.fill")
                         .font(.system(size: 18))
                         .foregroundColor(.green)
 
@@ -36,13 +39,29 @@ public struct ContentView: View {
                             .font(.system(size: 13, weight: .black))
                             .tracking(1.2)
                             .foregroundColor(.white)
-                        HStack(spacing: 6) {
-                            Circle()
-                                .fill(hardware.isConnected ? Color.green : Color.red)
-                                .frame(width: 7, height: 7)
-                            Text(hardware.deviceName)
-                                .font(.system(size: 11, weight: .medium))
-                                .foregroundColor(.secondary)
+
+                        HStack(spacing: 8) {
+                            // Mouse status
+                            HStack(spacing: 4) {
+                                Circle()
+                                    .fill(mouse.isConnected ? Color.green : Color.red)
+                                    .frame(width: 6, height: 6)
+                                Text("Basilisk V3")
+                                    .font(.system(size: 10, weight: .medium))
+                                    .foregroundColor(.secondary)
+                            }
+
+                            Text("•").foregroundColor(Color(white: 0.3))
+
+                            // Keyboard status
+                            HStack(spacing: 4) {
+                                Circle()
+                                    .fill(keyboard.isConnected ? Color.green : Color.orange)
+                                    .frame(width: 6, height: 6)
+                                Text("Attack Shark X98")
+                                    .font(.system(size: 10, weight: .medium))
+                                    .foregroundColor(.secondary)
+                            }
                         }
                     }
                 }
@@ -62,7 +81,7 @@ public struct ContentView: View {
                                 Text(tab.rawValue)
                             }
                             .font(.system(size: 12, weight: .semibold))
-                            .padding(.horizontal, 12)
+                            .padding(.horizontal, 10)
                             .padding(.vertical, 6)
                             .background(ui.selectedTab == tab ? Color.white.opacity(0.12) : Color.clear)
                             .foregroundColor(ui.selectedTab == tab ? .green : .white.opacity(0.8))
@@ -77,7 +96,8 @@ public struct ContentView: View {
 
                 // Refresh Button
                 Button(action: {
-                    hardware.refreshDevices()
+                    mouse.refreshDevices()
+                    keyboard.refreshConnection()
                 }) {
                     Image(systemName: "arrow.clockwise")
                         .font(.system(size: 13))
@@ -87,10 +107,10 @@ public struct ContentView: View {
                         .clipShape(Circle())
                 }
                 .buttonStyle(.plain)
-                .help("Scan for Razer peripherals")
+                .help("Rescan USB peripherals")
             }
             .padding(.horizontal, 20)
-            .padding(.vertical, 14)
+            .padding(.vertical, 12)
             .background(Color(white: 0.05))
             .overlay(
                 Rectangle()
@@ -101,24 +121,43 @@ public struct ContentView: View {
 
             // Main Content Area
             HStack(spacing: 0) {
-                // Left: Interactive Mouse Silhouette with Live Lighting
+                // Left: Hardware Live Previews
                 VStack {
                     Text("LIVE HARDWARE PREVIEW")
                         .font(.system(size: 10, weight: .bold))
                         .tracking(1.0)
                         .foregroundColor(.secondary)
-                        .padding(.top, 16)
+                        .padding(.top, 14)
 
                     Spacer()
 
-                    MousePreviewView(hardware: hardware)
+                    if ui.selectedTab == .syncAll {
+                        VStack(spacing: 16) {
+                            MousePreviewView(hardware: mouse)
+                                .scaleEffect(0.82)
+                                .frame(height: 270)
+                            KeyboardPreviewView(keyboard: keyboard)
+                                .scaleEffect(0.92)
+                                .frame(height: 160)
+                        }
+                    } else if ui.selectedTab == .keyboard {
+                        VStack(spacing: 12) {
+                            KeyboardPreviewView(keyboard: keyboard)
+                            Text("Attack Shark X98 Mechanical Keyboard\nSouth-facing RGB Backlight")
+                                .font(.system(size: 11))
+                                .multilineTextAlignment(.center)
+                                .foregroundColor(.secondary)
+                        }
+                    } else {
+                        MousePreviewView(hardware: mouse)
+                    }
 
                     Spacer()
 
-                    Text("Click on zones to configure independently")
+                    Text(ui.selectedTab == .keyboard ? "Hardware MCU Table Refresh" : "Click zones to configure independently")
                         .font(.system(size: 11))
                         .foregroundColor(.secondary)
-                        .padding(.bottom, 16)
+                        .padding(.bottom, 14)
                 }
                 .frame(width: 320)
                 .background(Color(white: 0.04))
@@ -134,12 +173,14 @@ public struct ContentView: View {
                     Color(white: 0.06).ignoresSafeArea()
 
                     switch ui.selectedTab {
-                    case .lighting:
-                        LightingView(hardware: hardware)
+                    case .syncAll:
+                        EcosystemSyncView(mouse: mouse, keyboard: keyboard)
+                    case .mouse:
+                        LightingView(hardware: mouse)
+                    case .keyboard:
+                        KeyboardLightingView(keyboard: keyboard)
                     case .performance:
-                        PerformanceView(hardware: hardware)
-                    case .profiles:
-                        ProfilesView(hardware: hardware)
+                        PerformanceView(hardware: mouse)
                     case .about:
                         AboutView()
                     }
@@ -148,17 +189,21 @@ public struct ContentView: View {
 
             // Footer Status Bar
             HStack {
-                HStack(spacing: 6) {
+                HStack(spacing: 8) {
                     Image(systemName: "memorychip")
                         .foregroundColor(.green)
-                    Text(hardware.lastStatusMessage)
+                    Text(mouse.lastStatusMessage)
+                        .font(.system(size: 11))
+                        .foregroundColor(.secondary)
+                    Text("•").foregroundColor(Color(white: 0.3))
+                    Text(keyboard.lastStatusMessage)
                         .font(.system(size: 11))
                         .foregroundColor(.secondary)
                 }
 
                 Spacer()
 
-                Text("macOS Native • Basilisk V3 (0x0099)")
+                Text("macOS • Razer Basilisk V3 + Attack Shark X98")
                     .font(.system(size: 10, design: .monospaced))
                     .foregroundColor(.secondary)
             }
@@ -172,7 +217,7 @@ public struct ContentView: View {
                 alignment: .top
             )
         }
-        .frame(minWidth: 880, minHeight: 680)
+        .frame(minWidth: 920, minHeight: 720)
         .background(Color(white: 0.04))
         .preferredColorScheme(.dark)
     }
@@ -180,42 +225,57 @@ public struct ContentView: View {
 
 public struct AboutView: View {
     public var body: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "computermouse.fill")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 60, height: 60)
-                .foregroundColor(.green)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                HStack(spacing: 16) {
+                    Image(systemName: "circle.grid.cross.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 50, height: 50)
+                        .foregroundColor(.green)
 
-            VStack(spacing: 6) {
-                Text("Chroma Control for macOS")
-                    .font(.system(size: 20, weight: .bold))
-                Text("Version 1.0.0")
-                    .font(.system(size: 13, design: .monospaced))
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Chroma Control for macOS")
+                            .font(.system(size: 18, weight: .bold))
+                        Text("Version 1.1.0 • Unified Mouse & Keyboard Ecosystem")
+                            .font(.system(size: 12, design: .monospaced))
+                            .foregroundColor(.secondary)
+                    }
+                }
+
+                Text("Unified macOS lighting and performance hub for your desk setup. Communicates directly with both your Razer mouse and Attack Shark mechanical keyboard via Apple IOKit USB HID without telemetry or browser barriers.")
+                    .font(.system(size: 13))
                     .foregroundColor(.secondary)
-            }
 
-            Text("Full native macOS alternative to Razer Synapse for RGB Chroma lighting, DPI stages, and polling rate management. Directly interfaces with Razer hardware via IOKit USB HID without telemetry or account requirements.")
-                .font(.system(size: 13))
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: 480)
+                // Hardware capabilities & differences
+                VStack(alignment: .leading, spacing: 14) {
+                    Text("DEVICE ARCHITECTURE & LIMITATIONS GUIDE")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(.green)
 
-            VStack(alignment: .leading, spacing: 8) {
-                Label("Clean-room IOKit USB HID direct communication", systemImage: "checkmark.circle.fill")
-                    .foregroundColor(.green)
-                Label("All 11 underglow, logo, and scroll wheel zones", systemImage: "checkmark.circle.fill")
-                    .foregroundColor(.green)
-                Label("Hardware onboard memory storage (VARSTORE)", systemImage: "checkmark.circle.fill")
-                    .foregroundColor(.green)
-                Label("Lightweight, instantaneous, 100% native Swift & C", systemImage: "checkmark.circle.fill")
-                    .foregroundColor(.green)
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("1. Razer Basilisk V3 (Wired)")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.white)
+                        Text("• Fully programmable per-zone addressable RGB (Logo, Scroll Wheel, and 11 individual underglow LEDs).\n• Supports full hardware effects (Static, Breathing, Wave, Spectrum, Reactive).\n• Hardware flash persistence: commands write to VARSTORE onboard memory and persist indefinitely across machines.")
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
+
+                        Divider()
+
+                        Text("2. Attack Shark X98 (Mechanical Keyboard)")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.white)
+                        Text("• The X98 uses an integrated Shinetek MCU (0x1A2C:0xA034) with 21 pre-programmed lighting algorithms and 7 hardware colors.\n• Why web drivers fail on Mac: The online qmk.top tool uses WebHID, which macOS browser sandboxes block from accessing keyboard interfaces. ChromaControl bypasses this by talking directly to the 0xFF02 vendor pipe.\n• Limitation: The MCU runs built-in effect tables rather than streaming raw per-key dynamic frames. This ensures 1000Hz gaming polling rate with 0% CPU overhead.\n• Onboard manual overrides: If running on battery or Bluetooth, you can always use the hardware shortcuts: Fn + \\ (Cycle 21 Effects), Fn + Enter (Cycle 7 Colors), Fn + ↑/↓ (Brightness), Fn + ←/→ (Speed).")
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(14)
+                    .background(Color(white: 0.08))
+                    .cornerRadius(10)
+                }
             }
-            .font(.system(size: 12))
-            .padding()
-            .background(Color(white: 0.09))
-            .cornerRadius(12)
+            .padding(24)
         }
-        .padding(30)
     }
 }

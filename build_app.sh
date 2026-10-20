@@ -14,6 +14,9 @@ mkdir -p "$APP_DIR/Contents/Resources"
 
 cp ".build/release/ChromaControl" "$APP_DIR/Contents/MacOS/ChromaControl"
 cp "Packaging/Info.plist" "$APP_DIR/Contents/Info.plist"
+if [ -f "Packaging/AppIcon.icns" ]; then
+    cp "Packaging/AppIcon.icns" "$APP_DIR/Contents/Resources/AppIcon.icns"
+fi
 chmod +x "$APP_DIR/Contents/MacOS/ChromaControl"
 
 echo "Done! You can open the application with: open $APP_DIR"
