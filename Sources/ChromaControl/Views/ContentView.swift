@@ -1,20 +1,18 @@
 import SwiftUI
 
 public enum MainTab: String, CaseIterable, Identifiable {
-    case syncAll = "Sync All"
-    case mouse = "Mouse"
-    case keyboard = "Keyboard"
+    case lighting = "Lighting"
     case performance = "Performance"
+    case profiles = "Profiles"
     case about = "About & Help"
 
     public var id: String { rawValue }
 
     public var icon: String {
         switch self {
-        case .syncAll: return "sparkles.rectangle.stack.fill"
-        case .mouse: return "computermouse.fill"
-        case .keyboard: return "keyboard.fill"
+        case .lighting: return "sun.max.fill"
         case .performance: return "gauge.medium"
+        case .profiles: return "sparkles.rectangle.stack.fill"
         case .about: return "info.circle"
         }
     }
@@ -22,7 +20,6 @@ public enum MainTab: String, CaseIterable, Identifiable {
 
 public struct ContentView: View {
     @ObservedObject var mouse = RazerHardwareManager.shared
-    @ObservedObject var keyboard = AttackSharkManager.shared
     @ObservedObject var ui = UIStateManager.shared
 
     public var body: some View {
@@ -40,28 +37,13 @@ public struct ContentView: View {
                             .tracking(1.2)
                             .foregroundColor(GitHubTheme.textPrimary)
 
-                        HStack(spacing: 8) {
-                            // Mouse status
-                            HStack(spacing: 4) {
-                                Circle()
-                                    .fill(mouse.isConnected ? GitHubTheme.accentGreenLight : GitHubTheme.dangerRedLight)
-                                    .frame(width: 6, height: 6)
-                                Text("Basilisk V3")
-                                    .font(.system(size: 10, weight: .medium))
-                                    .foregroundColor(GitHubTheme.textSecondary)
-                            }
-
-                            Text("•").foregroundColor(GitHubTheme.borderDefault)
-
-                            // Keyboard status
-                            HStack(spacing: 4) {
-                                Circle()
-                                    .fill(keyboard.isConnected ? GitHubTheme.accentGreenLight : GitHubTheme.warningYellow)
-                                    .frame(width: 6, height: 6)
-                                Text("Attack Shark X98")
-                                    .font(.system(size: 10, weight: .medium))
-                                    .foregroundColor(GitHubTheme.textSecondary)
-                            }
+                        HStack(spacing: 6) {
+                            Circle()
+                                .fill(mouse.isConnected ? GitHubTheme.accentGreenLight : GitHubTheme.dangerRedLight)
+                                .frame(width: 6, height: 6)
+                            Text(mouse.deviceName)
+                                .font(.system(size: 10, weight: .medium))
+                                .foregroundColor(GitHubTheme.textSecondary)
                         }
                     }
                 }
@@ -82,7 +64,7 @@ public struct ContentView: View {
                                 Text(tab.rawValue)
                             }
                             .font(.system(size: 12, weight: .semibold))
-                            .padding(.horizontal, 10)
+                            .padding(.horizontal, 12)
                             .padding(.vertical, 5)
                             .background(
                                 ui.selectedTab == tab ?
@@ -116,7 +98,6 @@ public struct ContentView: View {
                 // USB Rescan Button
                 Button(action: {
                     mouse.refreshDevices()
-                    keyboard.refreshConnection()
                 }) {
                     Image(systemName: "arrow.clockwise")
                         .font(.system(size: 12))
@@ -144,7 +125,7 @@ public struct ContentView: View {
 
             // MARK: - Main Content Area
             HStack(spacing: 0) {
-                // Left: Hardware Live Previews Pane
+                // Left: Hardware Live Preview
                 VStack {
                     Text("LIVE HARDWARE PREVIEW")
                         .font(.system(size: 10, weight: .bold))
@@ -154,30 +135,11 @@ public struct ContentView: View {
 
                     Spacer()
 
-                    if ui.selectedTab == .syncAll {
-                        VStack(spacing: 16) {
-                            MousePreviewView(hardware: mouse)
-                                .scaleEffect(0.80)
-                                .frame(height: 250)
-                            KeyboardPreviewView(keyboard: keyboard)
-                                .scaleEffect(0.90)
-                                .frame(height: 160)
-                        }
-                    } else if ui.selectedTab == .keyboard {
-                        VStack(spacing: 12) {
-                            KeyboardPreviewView(keyboard: keyboard)
-                            Text("Attack Shark X98 Mechanical Keyboard\nSouth-facing RGB Backlight")
-                                .font(.system(size: 11))
-                                .multilineTextAlignment(.center)
-                                .foregroundColor(GitHubTheme.textSecondary)
-                        }
-                    } else {
-                        MousePreviewView(hardware: mouse)
-                    }
+                    MousePreviewView(hardware: mouse)
 
                     Spacer()
 
-                    Text(ui.selectedTab == .keyboard ? "Live South-Facing LED Simulation" : "Click zones to configure independently")
+                    Text("Click zones to configure independently")
                         .font(.system(size: 10))
                         .foregroundColor(GitHubTheme.textTertiary)
                         .padding(.bottom, 14)
@@ -196,14 +158,12 @@ public struct ContentView: View {
                     GitHubTheme.canvasDefault.ignoresSafeArea()
 
                     switch ui.selectedTab {
-                    case .syncAll:
-                        EcosystemSyncView(mouse: mouse, keyboard: keyboard)
-                    case .mouse:
+                    case .lighting:
                         LightingView(hardware: mouse)
-                    case .keyboard:
-                        KeyboardLightingView(keyboard: keyboard)
                     case .performance:
                         PerformanceView(hardware: mouse)
+                    case .profiles:
+                        ProfilesView(hardware: mouse)
                     case .about:
                         AboutView()
                     }
@@ -219,15 +179,11 @@ public struct ContentView: View {
                     Text(mouse.lastStatusMessage)
                         .font(.system(size: 10, design: .monospaced))
                         .foregroundColor(GitHubTheme.textSecondary)
-                    Text("•").foregroundColor(GitHubTheme.borderDefault)
-                    Text(keyboard.lastStatusMessage)
-                        .font(.system(size: 10, design: .monospaced))
-                        .foregroundColor(GitHubTheme.textSecondary)
                 }
 
                 Spacer()
 
-                Text("macOS • Razer Basilisk V3 + Attack Shark X98")
+                Text("macOS • Razer Basilisk V3 (0x1532:0x0099)")
                     .font(.system(size: 10, design: .monospaced))
                     .foregroundColor(GitHubTheme.textTertiary)
             }
@@ -241,7 +197,7 @@ public struct ContentView: View {
                 alignment: .top
             )
         }
-        .frame(minWidth: 940, minHeight: 720)
+        .frame(minWidth: 920, minHeight: 680)
         .background(GitHubTheme.canvasDefault)
         .preferredColorScheme(.dark)
     }
@@ -262,35 +218,26 @@ public struct AboutView: View {
                         Text("Chroma Control for macOS")
                             .font(.system(size: 18, weight: .bold))
                             .foregroundColor(GitHubTheme.textPrimary)
-                        Text("Version 1.2.0 • Unified Razer & Attack Shark Ecosystem")
+                        Text("Version 1.3.0 • Native Razer Chroma Controller")
                             .font(.system(size: 11, design: .monospaced))
                             .foregroundColor(GitHubTheme.textSecondary)
                     }
                 }
 
-                Text("Unified native macOS lighting and performance control hub for your desk setup. Communicates directly with both your Razer Basilisk V3 mouse and Attack Shark X98 mechanical keyboard via Apple IOKit USB HID without telemetry or browser barriers.")
+                Text("Lightweight native macOS lighting and performance control hub for your Razer mouse. Communicates directly with your hardware via Apple IOKit USB HID without telemetry, Synapse bloat, or background memory leaks.")
                     .font(.system(size: 13))
                     .foregroundColor(GitHubTheme.textSecondary)
 
                 VStack(alignment: .leading, spacing: 14) {
-                    Text("DEVICE ARCHITECTURE & CAPABILITIES GUIDE")
+                    Text("FEATURES & CAPABILITIES")
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(GitHubTheme.accentGreenLight)
 
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("1. Razer Basilisk V3 (Wired)")
+                        Text("Razer Basilisk V3")
                             .font(.system(size: 13, weight: .semibold))
                             .foregroundColor(GitHubTheme.textPrimary)
-                        Text("• Fully programmable per-zone addressable RGB (Logo, Scroll Wheel, and 11 individual underglow LEDs).\n• Supports full hardware effects (Static, Breathing, Wave, Spectrum, Reactive).\n• Hardware flash persistence: commands write directly to VARSTORE onboard memory and persist indefinitely across reboots and different machines.")
-                            .font(.system(size: 12))
-                            .foregroundColor(GitHubTheme.textSecondary)
-
-                        Divider().background(GitHubTheme.borderDefault)
-
-                        Text("2. Attack Shark X98 (Mechanical Keyboard)")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(GitHubTheme.textPrimary)
-                        Text("• The X98 uses a Shinetek MCU (0x1A2C:0xA034) with 21 hardware effects and custom per-key lighting tables.\n• Per-Key Matrix: ChromaControl sends 7 sequential 64-byte chunks of Command 0x0C (FEA_CMD_SET_USERPIC) with bit-7 checksums to paint custom RGB colors across all keys, followed by Command 0x07 (LightUserPicture) to render it immediately.\n• Why web drivers fail on Mac: The online qmk.top tool relies on WebHID, which macOS browser sandboxes restrict. ChromaControl communicates directly with the 0xFF02 vendor pipe via native IOKit.\n• Hardware shortcuts: Fn + \\ (Cycle 21 Effects) • Fn + Enter (Cycle 7 Colors) • Fn + ↑/↓ (Brightness) • Fn + ←/→ (Speed).")
+                        Text("• Fully programmable per-zone addressable RGB (Logo, Scroll Wheel, and 11 individual underglow LEDs).\n• Supports full hardware effects (Static Solid, Breathing, Spectrum Cycling, Wave, Reactive, Off).\n• Sensor DPI adjustment up to 26,000 DPI with quick tournament stages (400, 800, 1600, 3200, 6400).\n• Hardware polling rate switching (125Hz, 500Hz, 1000Hz).\n• Onboard flash persistence: commands write directly to VARSTORE non-volatile memory so your settings persist across reboots without software running.")
                             .font(.system(size: 12))
                             .foregroundColor(GitHubTheme.textSecondary)
                     }

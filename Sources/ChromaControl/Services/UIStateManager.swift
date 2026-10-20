@@ -3,7 +3,7 @@ import SwiftUI
 public class UIStateManager: ObservableObject {
     public static let shared = UIStateManager()
 
-    @Published public var selectedTab: MainTab = .syncAll
+    @Published public var selectedTab: MainTab = .lighting
     @Published public var hexInput: String = "#FF0000"
     @Published public var previewPhase: CGFloat = 0.0
     @Published public var breathingOpacity: Double = 1.0

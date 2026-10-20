@@ -17,7 +17,7 @@ public struct ProfilesView: View {
             name: "Sith Lord Red",
             subtitle: "Aggressive pure crimson red on all zones",
             icon: "flame.fill",
-            accentColor: Color.red,
+            accentColor: GitHubTheme.dangerRedLight,
             setup: { hw in
                 hw.syncAllZones = true
                 hw.globalBrightness = 100
@@ -28,18 +28,18 @@ public struct ProfilesView: View {
             name: "Razer Signature Green",
             subtitle: "The classic esports tournament look",
             icon: "shield.fill",
-            accentColor: Color.green,
+            accentColor: GitHubTheme.accentGreenLight,
             setup: { hw in
                 hw.syncAllZones = true
                 hw.globalBrightness = 100
-                hw.zoneStates[.all] = ZoneLightingState(effect: .staticColor, primaryColor: Color(red: 0.0, green: 1.0, blue: 0.2))
+                hw.zoneStates[.all] = ZoneLightingState(effect: .staticColor, primaryColor: Color(red: 0.14, green: 0.75, blue: 0.28))
             }
         ),
         PresetProfile(
             name: "Cyberpunk 2077",
             subtitle: "Electric yellow base with neon cyan wheel",
             icon: "bolt.horizontal.fill",
-            accentColor: Color.yellow,
+            accentColor: GitHubTheme.warningYellow,
             setup: { hw in
                 hw.syncAllZones = false
                 hw.globalBrightness = 100
@@ -52,20 +52,20 @@ public struct ProfilesView: View {
             name: "Vaporwave Synth",
             subtitle: "Hot pink logo with purple underglow",
             icon: "waveform.circle.fill",
-            accentColor: Color(red: 1.0, green: 0.0, blue: 0.6),
+            accentColor: GitHubTheme.accentPurpleLight,
             setup: { hw in
                 hw.syncAllZones = false
                 hw.globalBrightness = 100
                 hw.zoneStates[.scrollWheel] = ZoneLightingState(effect: .staticColor, primaryColor: Color(red: 0.0, green: 0.8, blue: 1.0))
                 hw.zoneStates[.logo] = ZoneLightingState(effect: .staticColor, primaryColor: Color(red: 1.0, green: 0.0, blue: 0.6))
-                hw.zoneStates[.underglow] = ZoneLightingState(effect: .staticColor, primaryColor: Color(red: 0.6, green: 0.0, blue: 1.0))
+                hw.zoneStates[.underglow] = ZoneLightingState(effect: .staticColor, primaryColor: Color(red: 0.65, green: 0.0, blue: 1.0))
             }
         ),
         PresetProfile(
             name: "Spectrum Wave",
             subtitle: "Continuous rainbow ripple across all 11 zones",
             icon: "rainbow",
-            accentColor: Color.blue,
+            accentColor: GitHubTheme.accentBlue,
             setup: { hw in
                 hw.syncAllZones = true
                 hw.globalBrightness = 100
@@ -76,7 +76,7 @@ public struct ProfilesView: View {
             name: "Stealth Blackout",
             subtitle: "Zero lighting for focused work or dark rooms",
             icon: "moon.fill",
-            accentColor: Color.gray,
+            accentColor: GitHubTheme.textTertiary,
             setup: { hw in
                 hw.syncAllZones = true
                 hw.globalBrightness = 0
@@ -90,9 +90,9 @@ public struct ProfilesView: View {
             VStack(alignment: .leading, spacing: 16) {
                 Text("QUICK PROFILES")
                     .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(GitHubTheme.textSecondary)
 
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                     ForEach(profiles) { profile in
                         Button(action: {
                             profile.setup(hardware)
@@ -102,25 +102,25 @@ public struct ProfilesView: View {
                                 Image(systemName: profile.icon)
                                     .font(.system(size: 20))
                                     .foregroundColor(profile.accentColor)
-                                    .frame(width: 30)
+                                    .frame(width: 28)
 
-                                VStack(alignment: .leading, spacing: 4) {
+                                VStack(alignment: .leading, spacing: 3) {
                                     Text(profile.name)
-                                        .font(.system(size: 14, weight: .bold))
-                                        .foregroundColor(.white)
+                                        .font(.system(size: 13, weight: .bold))
+                                        .foregroundColor(GitHubTheme.textPrimary)
                                     Text(profile.subtitle)
                                         .font(.system(size: 11))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(GitHubTheme.textSecondary)
                                 }
 
                                 Spacer()
                             }
-                            .padding(14)
-                            .background(Color(white: 0.09))
-                            .cornerRadius(12)
+                            .padding(12)
+                            .background(GitHubTheme.canvasInset)
+                            .cornerRadius(8)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color(white: 0.16), lineWidth: 1)
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(GitHubTheme.borderDefault, lineWidth: 1)
                             )
                         }
                         .buttonStyle(.plain)
@@ -129,5 +129,6 @@ public struct ProfilesView: View {
             }
             .padding(16)
         }
+        .background(GitHubTheme.canvasDefault)
     }
 }
