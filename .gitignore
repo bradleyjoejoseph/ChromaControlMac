@@ -1,0 +1,7 @@
+.build/
+build/
+*.o
+*.so
+*.dylib
+.DS_Store
+.swiftpm/
