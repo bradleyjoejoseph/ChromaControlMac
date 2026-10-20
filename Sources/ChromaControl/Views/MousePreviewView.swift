@@ -40,7 +40,7 @@ public struct MousePreviewView: View {
                     MouseBodyShape()
                         .stroke(
                             colorFor(zone: .underglow)
-                                .opacity(0.8 * (hardware.globalBrightness / 100.0) * ui.breathingOpacity),
+                                .opacity(0.85 * (hardware.globalBrightness / 100.0) * ui.breathingOpacity),
                             lineWidth: 5
                         )
                         .blur(radius: 6)
@@ -50,14 +50,14 @@ public struct MousePreviewView: View {
                     MouseBodyShape()
                         .fill(
                             LinearGradient(
-                                colors: [Color(white: 0.14), Color(white: 0.08), Color(white: 0.05)],
+                                colors: [GitHubTheme.canvasInset, GitHubTheme.canvasSubtle, GitHubTheme.canvasDefault],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                         )
                         .overlay(
                             MouseBodyShape()
-                                .stroke(Color(white: 0.22), lineWidth: 1.5)
+                                .stroke(GitHubTheme.borderDefault, lineWidth: 1.5)
                         )
                         .shadow(color: .black.opacity(0.8), radius: 15, x: 0, y: 10)
                         .frame(width: 190, height: 320)
@@ -68,22 +68,22 @@ public struct MousePreviewView: View {
                         path.addQuadCurve(to: CGPoint(x: 5, y: 220), control: CGPoint(x: 8, y: 190))
                         path.addQuadCurve(to: CGPoint(x: 25, y: 270), control: CGPoint(x: 10, y: 250))
                     }
-                    .stroke(Color(white: 0.2), lineWidth: 2)
+                    .stroke(GitHubTheme.borderDefault, lineWidth: 2)
 
                     // Main Left/Right button separation lines
                     Path { path in
                         path.move(to: CGPoint(x: 95, y: 25))
                         path.addLine(to: CGPoint(x: 95, y: 110))
                     }
-                    .stroke(Color(white: 0.2), lineWidth: 1.5)
+                    .stroke(GitHubTheme.borderDefault, lineWidth: 1.5)
 
                     // 1. SCROLL WHEEL ZONE
                     ZStack {
                         Capsule()
-                            .fill(Color(white: 0.05))
+                            .fill(GitHubTheme.canvasDefault)
                             .frame(width: 24, height: 50)
                             .overlay(
-                                Capsule().stroke(Color(white: 0.25), lineWidth: 1)
+                                Capsule().stroke(GitHubTheme.borderDefault, lineWidth: 1)
                             )
 
                         Capsule()
@@ -118,10 +118,10 @@ public struct MousePreviewView: View {
                     // DPI Switch Buttons behind scroll wheel
                     VStack(spacing: 4) {
                         RoundedRectangle(cornerRadius: 3)
-                            .fill(Color(white: 0.2))
+                            .fill(GitHubTheme.borderDefault)
                             .frame(width: 10, height: 12)
                         RoundedRectangle(cornerRadius: 3)
-                            .fill(Color(white: 0.2))
+                            .fill(GitHubTheme.borderDefault)
                             .frame(width: 10, height: 12)
                     }
                     .position(x: 95, y: 130)
@@ -181,13 +181,20 @@ public struct MousePreviewView: View {
                         .padding(.vertical, 5)
                         .background(
                             hardware.selectedZone == zone ?
-                            Color.green.opacity(0.2) : Color.white.opacity(0.06)
+                            GitHubTheme.accentGreen.opacity(0.2) : GitHubTheme.canvasInset
                         )
-                        .foregroundColor(hardware.selectedZone == zone ? .green : .white)
-                        .cornerRadius(8)
+                        .foregroundColor(
+                            hardware.selectedZone == zone ?
+                            GitHubTheme.accentGreenLight : GitHubTheme.textSecondary
+                        )
+                        .cornerRadius(6)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(hardware.selectedZone == zone ? Color.green : Color.clear, lineWidth: 1)
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(
+                                    hardware.selectedZone == zone ?
+                                    GitHubTheme.accentGreen : GitHubTheme.borderDefault,
+                                    lineWidth: 1
+                                )
                         )
                     }
                     .buttonStyle(.plain)

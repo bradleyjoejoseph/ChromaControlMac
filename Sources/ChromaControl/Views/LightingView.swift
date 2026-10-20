@@ -13,63 +13,71 @@ public struct LightingView: View {
 
     public var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 18) {
                 // Zone Sync Switcher
                 HStack {
                     VStack(alignment: .leading, spacing: 3) {
                         Text("LIGHTING ZONES")
                             .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(GitHubTheme.textSecondary)
                         Text(hardware.syncAllZones ? "All Zones Synchronized" : "Customizing: \(hardware.selectedZone.rawValue)")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.white)
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(GitHubTheme.textPrimary)
                     }
 
                     Spacer()
 
                     Toggle("Sync All Zones", isOn: $hardware.syncAllZones)
                         .toggleStyle(.switch)
-                        .tint(.green)
+                        .tint(GitHubTheme.accentGreen)
                 }
-                .padding(14)
-                .background(Color(white: 0.08))
-                .cornerRadius(12)
+                .modifier(GitHubCardModifier(padding: 14, cornerRadius: 10))
 
                 // Effects Grid
                 VStack(alignment: .leading, spacing: 10) {
                     Text("CHROMA EFFECTS")
                         .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(GitHubTheme.textSecondary)
 
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 10)], spacing: 10) {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 145), spacing: 8)], spacing: 8) {
                         ForEach(LightingEffectType.allCases) { effect in
                             Button(action: {
                                 withAnimation(.easeInOut(duration: 0.15)) {
                                     currentZoneState.wrappedValue.effect = effect
                                 }
                             }) {
-                                HStack(spacing: 10) {
+                                HStack(spacing: 8) {
                                     Image(systemName: effect.icon)
-                                        .font(.system(size: 16))
-                                        .foregroundColor(currentZoneState.wrappedValue.effect == effect ? .black : .green)
-                                        .frame(width: 24)
+                                        .font(.system(size: 14))
+                                        .foregroundColor(
+                                            currentZoneState.wrappedValue.effect == effect ?
+                                            GitHubTheme.accentGreenLight : GitHubTheme.textSecondary
+                                        )
+                                        .frame(width: 20)
 
                                     Text(effect.rawValue)
-                                        .font(.system(size: 13, weight: .medium))
-                                        .foregroundColor(currentZoneState.wrappedValue.effect == effect ? .black : .white)
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(
+                                            currentZoneState.wrappedValue.effect == effect ?
+                                            GitHubTheme.textPrimary : GitHubTheme.textSecondary
+                                        )
 
                                     Spacer()
                                 }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 10)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 8)
                                 .background(
                                     currentZoneState.wrappedValue.effect == effect ?
-                                    Color.green : Color(white: 0.1)
+                                    GitHubTheme.canvasInset : GitHubTheme.canvasSubtle
                                 )
-                                .cornerRadius(10)
+                                .cornerRadius(6)
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(currentZoneState.wrappedValue.effect == effect ? Color.green : Color(white: 0.18), lineWidth: 1)
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .stroke(
+                                            currentZoneState.wrappedValue.effect == effect ?
+                                            GitHubTheme.accentGreen : GitHubTheme.borderDefault,
+                                            lineWidth: 1
+                                        )
                                 )
                             }
                             .buttonStyle(.plain)
@@ -81,15 +89,15 @@ public struct LightingView: View {
                 VStack(alignment: .leading, spacing: 14) {
                     HStack {
                         Image(systemName: currentZoneState.wrappedValue.effect.icon)
-                            .foregroundColor(.green)
+                            .foregroundColor(GitHubTheme.accentGreenLight)
                         Text(currentZoneState.wrappedValue.effect.rawValue.uppercased() + " SETTINGS")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(.white)
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(GitHubTheme.textPrimary)
                     }
 
                     Text(currentZoneState.wrappedValue.effect.description)
-                        .font(.system(size: 12))
-                        .foregroundColor(.secondary)
+                        .font(.system(size: 11))
+                        .foregroundColor(GitHubTheme.textSecondary)
 
                     switch currentZoneState.wrappedValue.effect {
                     case .staticColor:
@@ -109,10 +117,12 @@ public struct LightingView: View {
                             } else if currentZoneState.wrappedValue.breathingMode == 1 {
                                 Text("Primary Color")
                                     .font(.system(size: 11, weight: .semibold))
+                                    .foregroundColor(GitHubTheme.textSecondary)
                                 ColorPickerView(selectedColor: currentZoneState.primaryColor)
 
                                 Text("Secondary Color")
                                     .font(.system(size: 11, weight: .semibold))
+                                    .foregroundColor(GitHubTheme.textSecondary)
                                 ColorPickerView(selectedColor: currentZoneState.secondaryColor)
                             }
                         }
@@ -120,7 +130,8 @@ public struct LightingView: View {
                     case .wave:
                         VStack(alignment: .leading, spacing: 10) {
                             Text("Direction")
-                                .font(.system(size: 12, weight: .medium))
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundColor(GitHubTheme.textSecondary)
                             Picker("Direction", selection: currentZoneState.waveDirection) {
                                 Text("Forward (Top to Bottom)").tag(1)
                                 Text("Reverse (Bottom to Top)").tag(2)
@@ -132,18 +143,19 @@ public struct LightingView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
                                 Text("Reactive Duration")
-                                    .font(.system(size: 12, weight: .medium))
+                                    .font(.system(size: 11, weight: .medium))
+                                    .foregroundColor(GitHubTheme.textSecondary)
                                 Spacer()
                                 Text(reactiveDurationText(currentZoneState.wrappedValue.reactiveSpeed))
-                                    .font(.system(size: 12, design: .monospaced))
-                                    .foregroundColor(.green)
+                                    .font(.system(size: 11, design: .monospaced))
+                                    .foregroundColor(GitHubTheme.accentGreenLight)
                             }
 
                             Slider(value: Binding(
                                 get: { Double(currentZoneState.wrappedValue.reactiveSpeed) },
                                 set: { currentZoneState.wrappedValue.reactiveSpeed = Int($0) }
                             ), in: 1...4, step: 1)
-                            .tint(.green)
+                            .tint(GitHubTheme.accentGreen)
 
                             ColorPickerView(selectedColor: currentZoneState.primaryColor)
                         }
@@ -151,58 +163,55 @@ public struct LightingView: View {
                     case .spectrum:
                         HStack {
                             Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(.green)
-                            Text("Cycles through all 16.8 million Chroma colors dynamically.")
+                                .foregroundColor(GitHubTheme.accentGreenLight)
+                            Text("Cycles smoothly across all 16.8 million Razer Chroma colors.")
                                 .font(.system(size: 12))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(GitHubTheme.textSecondary)
                         }
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 4)
 
                     case .off:
                         HStack {
                             Image(systemName: "moon.fill")
-                                .foregroundColor(.gray)
+                                .foregroundColor(GitHubTheme.textTertiary)
                             Text("LEDs disabled for zero distraction / stealth gaming.")
                                 .font(.system(size: 12))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(GitHubTheme.textSecondary)
                         }
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 4)
                     }
                 }
-                .padding(14)
-                .background(Color(white: 0.08))
-                .cornerRadius(12)
+                .modifier(GitHubCardModifier(padding: 14, cornerRadius: 10))
 
                 // Brightness Slider
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 6) {
                     HStack {
                         Image(systemName: "sun.max.fill")
-                            .foregroundColor(.yellow)
+                            .foregroundColor(GitHubTheme.warningYellow)
                         Text("CHROMA BRIGHTNESS")
                             .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(GitHubTheme.textSecondary)
                         Spacer()
                         Text("\(Int(hardware.globalBrightness))%")
-                            .font(.system(size: 13, weight: .bold, design: .monospaced))
-                            .foregroundColor(.white)
+                            .font(.system(size: 12, design: .monospaced))
+                            .foregroundColor(GitHubTheme.textPrimary)
                     }
 
                     Slider(value: $hardware.globalBrightness, in: 0...100, step: 1)
-                        .tint(.green)
+                        .tint(GitHubTheme.accentGreen)
                 }
-                .padding(14)
-                .background(Color(white: 0.08))
-                .cornerRadius(12)
+                .modifier(GitHubCardModifier(padding: 12, cornerRadius: 8))
 
                 // Action Bar
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Toggle("Save to Onboard Memory", isOn: $hardware.saveToOnboardMemory)
+                        Toggle("Save to Onboard Flash (VARSTORE)", isOn: $hardware.saveToOnboardMemory)
                             .toggleStyle(.checkbox)
-                            .font(.system(size: 12))
-                        Text("Settings will persist without software running")
+                            .font(.system(size: 11))
+                            .foregroundColor(GitHubTheme.textPrimary)
+                        Text("Settings persist across machine reboots and disconnections")
                             .font(.system(size: 10))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(GitHubTheme.textSecondary)
                     }
 
                     Spacer()
@@ -210,26 +219,25 @@ public struct LightingView: View {
                     Button(action: {
                         hardware.applyCurrentSettings()
                     }) {
-                        HStack(spacing: 8) {
+                        HStack(spacing: 6) {
                             Image(systemName: "paperplane.fill")
                             Text("Apply to Mouse")
-                                .font(.system(size: 13, weight: .bold))
+                                .font(.system(size: 12, weight: .bold))
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 10)
-                        .background(Color.green)
-                        .foregroundColor(.black)
-                        .cornerRadius(10)
-                        .shadow(color: Color.green.opacity(0.4), radius: 8, x: 0, y: 3)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(GitHubTheme.accentGreen)
+                        .foregroundColor(.white)
+                        .cornerRadius(6)
+                        .shadow(color: GitHubTheme.accentGreen.opacity(0.3), radius: 4, x: 0, y: 2)
                     }
                     .buttonStyle(.plain)
                 }
-                .padding(14)
-                .background(Color(white: 0.06))
-                .cornerRadius(12)
+                .modifier(GitHubSubtleCardModifier(padding: 12, cornerRadius: 8))
             }
             .padding(16)
         }
+        .background(GitHubTheme.canvasDefault)
     }
 
     private func reactiveDurationText(_ speed: Int) -> String {

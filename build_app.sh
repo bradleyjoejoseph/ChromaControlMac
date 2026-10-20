@@ -19,4 +19,8 @@ if [ -f "Packaging/AppIcon.icns" ]; then
 fi
 chmod +x "$APP_DIR/Contents/MacOS/ChromaControl"
 
+# Clean any exFAT/FAT AppleDouble artifacts and ad-hoc codesign
+find "$APP_DIR" -name "._*" -delete 2>/dev/null || true
+codesign --force --deep --sign - "$APP_DIR" 2>/dev/null || true
+
 echo "Done! You can open the application with: open $APP_DIR"

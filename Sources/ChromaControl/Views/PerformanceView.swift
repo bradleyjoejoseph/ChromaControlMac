@@ -8,19 +8,19 @@ public struct PerformanceView: View {
 
     public var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 18) {
                 // DPI Section
                 VStack(alignment: .leading, spacing: 14) {
                     HStack {
                         Image(systemName: "speedometer")
-                            .foregroundColor(.green)
+                            .foregroundColor(GitHubTheme.accentGreenLight)
                         Text("DPI SENSITIVITY")
                             .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(GitHubTheme.textSecondary)
                         Spacer()
                         Text("\(hardware.currentDpi) DPI")
-                            .font(.system(size: 16, weight: .bold, design: .monospaced))
-                            .foregroundColor(.green)
+                            .font(.system(size: 15, weight: .bold, design: .monospaced))
+                            .foregroundColor(GitHubTheme.accentGreenLight)
                     }
 
                     // Quick Stages
@@ -34,9 +34,23 @@ public struct PerformanceView: View {
                                     .font(.system(size: 12, weight: .semibold))
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 8)
-                                    .background(hardware.currentDpi == stage ? Color.green : Color(white: 0.12))
-                                    .foregroundColor(hardware.currentDpi == stage ? .black : .white)
-                                    .cornerRadius(8)
+                                    .background(
+                                        hardware.currentDpi == stage ?
+                                        GitHubTheme.accentGreen : GitHubTheme.canvasSubtle
+                                    )
+                                    .foregroundColor(
+                                        hardware.currentDpi == stage ?
+                                        .white : GitHubTheme.textPrimary
+                                    )
+                                    .cornerRadius(6)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .stroke(
+                                                hardware.currentDpi == stage ?
+                                                GitHubTheme.accentGreen : GitHubTheme.borderDefault,
+                                                lineWidth: 1
+                                            )
+                                    )
                             }
                             .buttonStyle(.plain)
                         }
@@ -47,28 +61,26 @@ public struct PerformanceView: View {
                         get: { Double(hardware.currentDpi) },
                         set: { hardware.currentDpi = Int($0) }
                     ), in: 100...16000, step: 50)
-                    .tint(.green)
+                    .tint(GitHubTheme.accentGreen)
 
-                    Text("Razer Focus+ Optical Sensor supports up to 26,000 DPI.")
+                    Text("Razer Focus+ Optical Sensor supports hardware precision tuning up to 26,000 DPI.")
                         .font(.system(size: 11))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(GitHubTheme.textSecondary)
                 }
-                .padding(14)
-                .background(Color(white: 0.08))
-                .cornerRadius(12)
+                .modifier(GitHubCardModifier(padding: 14, cornerRadius: 10))
 
-                // Polling Rate
+                // Polling Rate Section
                 VStack(alignment: .leading, spacing: 14) {
                     HStack {
                         Image(systemName: "waveform.path.ecg")
-                            .foregroundColor(.green)
+                            .foregroundColor(GitHubTheme.accentBlue)
                         Text("POLLING RATE")
                             .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(GitHubTheme.textSecondary)
                         Spacer()
                         Text("\(hardware.pollingRate) Hz")
-                            .font(.system(size: 15, weight: .bold, design: .monospaced))
-                            .foregroundColor(.green)
+                            .font(.system(size: 14, weight: .bold, design: .monospaced))
+                            .foregroundColor(GitHubTheme.accentBlue)
                     }
 
                     HStack(spacing: 10) {
@@ -82,25 +94,40 @@ public struct PerformanceView: View {
                                         .font(.system(size: 13, weight: .bold))
                                     Text(rate == 1000 ? "1.0 ms response" : (rate == 500 ? "2.0 ms response" : "8.0 ms response"))
                                         .font(.system(size: 10))
-                                        .foregroundColor(hardware.pollingRate == rate ? .black.opacity(0.8) : .secondary)
+                                        .foregroundColor(
+                                            hardware.pollingRate == rate ?
+                                            .white.opacity(0.85) : GitHubTheme.textSecondary
+                                        )
                                 }
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                                .background(hardware.pollingRate == rate ? Color.green : Color(white: 0.12))
-                                .foregroundColor(hardware.pollingRate == rate ? .black : .white)
-                                .cornerRadius(10)
+                                .padding(.vertical, 10)
+                                .background(
+                                    hardware.pollingRate == rate ?
+                                    GitHubTheme.accentGreen : GitHubTheme.canvasSubtle
+                                )
+                                .foregroundColor(
+                                    hardware.pollingRate == rate ?
+                                    .white : GitHubTheme.textPrimary
+                                )
+                                .cornerRadius(8)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(
+                                            hardware.pollingRate == rate ?
+                                            GitHubTheme.accentGreen : GitHubTheme.borderDefault,
+                                            lineWidth: 1
+                                        )
+                                )
                             }
                             .buttonStyle(.plain)
                         }
                     }
 
-                    Text("Higher polling rates provide ultra-low input latency for competitive gaming.")
+                    Text("Higher polling rates yield the lowest mouse pointer input latency for competitive gaming.")
                         .font(.system(size: 11))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(GitHubTheme.textSecondary)
                 }
-                .padding(14)
-                .background(Color(white: 0.08))
-                .cornerRadius(12)
+                .modifier(GitHubCardModifier(padding: 14, cornerRadius: 10))
 
                 // Save button
                 HStack {
@@ -108,21 +135,24 @@ public struct PerformanceView: View {
                     Button(action: {
                         hardware.applyCurrentSettings()
                     }) {
-                        HStack(spacing: 8) {
+                        HStack(spacing: 6) {
                             Image(systemName: "checkmark.circle.fill")
                             Text("Apply Sensitivity & Rate")
-                                .font(.system(size: 13, weight: .bold))
+                                .font(.system(size: 12, weight: .bold))
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 10)
-                        .background(Color.green)
-                        .foregroundColor(.black)
-                        .cornerRadius(10)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(GitHubTheme.accentGreen)
+                        .foregroundColor(.white)
+                        .cornerRadius(6)
+                        .shadow(color: GitHubTheme.accentGreen.opacity(0.3), radius: 4, x: 0, y: 2)
                     }
                     .buttonStyle(.plain)
                 }
+                .modifier(GitHubSubtleCardModifier(padding: 12, cornerRadius: 8))
             }
             .padding(16)
         }
+        .background(GitHubTheme.canvasDefault)
     }
 }
